@@ -1,0 +1,19 @@
+{
+  "name": "z-ai-cli",
+  "version": "1.0.0",
+  "description": "CLI for Z-AI Predictor - Production Confidential AI/ML Predictions",
+  "main": "z-ai-cli.js",
+  "bin": {
+    "z-ai-cli": "./z-ai-cli.js"
+  },
+  "scripts": {
+    "start": "node z-ai-cli.js"
+  },
+  "dependencies": {
+    "commander": "^11.1.0",
+    "axios": "^1.6.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

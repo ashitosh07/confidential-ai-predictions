@@ -1,0 +1,19 @@
+{
+  "name": "z-ai-sdk",
+  "version": "1.0.0",
+  "description": "SDK for Z-AI Predictor - Production Confidential AI/ML Predictions",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "axios": "^1.6.0",
+    "ethers": "^6.8.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": ["fhevm", "ai", "ml", "privacy", "zama", "blockchain"],
+  "author": "Zama Developer Program",
+  "license": "MIT"
+}

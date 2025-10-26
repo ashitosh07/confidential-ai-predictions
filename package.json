@@ -1,0 +1,25 @@
+{
+  "name": "z-ai-predictor",
+  "version": "1.0.0",
+  "description": "Production Confidential AI/ML Predictions using Zama FHEVM",
+  "scripts": {
+    "deploy": "node scripts/deploy-contract.js",
+    "validate": "node scripts/validate-production.js",
+    "test": "node scripts/test-integration.js",
+    "install-all": "npm install && cd backend && npm install && cd ../frontend && npm install",
+    "start-node": "node scripts/start-local-node.js",
+    "setup": "npm run install-all && cp backend/.env.example backend/.env"
+  },
+  "dependencies": {
+    "ethers": "^6.8.0",
+    "axios": "^1.6.0",
+    "dotenv": "^16.6.1"
+  },
+  "devDependencies": {
+    "hardhat": "^2.19.0",
+    "@nomicfoundation/hardhat-toolbox": "^4.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

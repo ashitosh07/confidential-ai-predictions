@@ -1,0 +1,36 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-slate-900 text-white;
+  }
+}
+
+@layer components {
+  .cyber-border {
+    @apply relative;
+  }
+  
+  .cyber-border::before {
+    content: '';
+    @apply absolute inset-0 bg-gradient-to-r from-purple-500/20 via-blue-500/20 to-purple-500/20 rounded-lg;
+    @apply animate-gradient;
+  }
+  
+  .glass-morphism {
+    @apply bg-white/5 backdrop-blur-md border border-white/10;
+  }
+  
+  .neon-glow {
+    @apply shadow-lg shadow-purple-500/25;
+  }
+}
+
+.cyber-grid {
+  background-image: 
+    linear-gradient(rgba(139, 92, 246, 0.1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(139, 92, 246, 0.1) 1px, transparent 1px);
+  background-size: 50px 50px;
+}

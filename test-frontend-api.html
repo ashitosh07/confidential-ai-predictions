@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Frontend API Test</title>
+</head>
+<body>
+    <h1>Frontend API Test</h1>
+    <div id="results"></div>
+    
+    <script>
+        async function testAPIs() {
+            const results = document.getElementById('results');
+            
+            try {
+                // Test health endpoint
+                results.innerHTML += '<p>Testing health endpoint...</p>';
+                const healthResponse = await fetch('http://localhost:3001/health');
+                const healthData = await healthResponse.json();
+                results.innerHTML += `<p>✅ Health: ${healthData.success ? 'PASSED' : 'FAILED'}</p>`;
+                
+                // Test market data
+                results.innerHTML += '<p>Testing market data...</p>';
+                const marketResponse = await fetch('http://localhost:3001/api/fetch-market/bitcoin');
+                const marketData = await marketResponse.json();
+                results.innerHTML += `<p>✅ Market: ${marketData.success ? 'PASSED' : 'FAILED'}</p>`;
+                if (marketData.success) {
+                    results.innerHTML += `<p>Bitcoin Price: $${marketData.data.price}</p>`;
+                }
+                
+                // Test weather data
+                results.innerHTML += '<p>Testing weather data...</p>';
+                const weatherResponse = await fetch('http://localhost:3001/api/fetch-weather/London');
+                const weatherData = await weatherResponse.json();
+                results.innerHTML += `<p>✅ Weather: ${weatherData.success ? 'PASSED' : 'FAILED'}</p>`;
+                if (weatherData.success) {
+                    results.innerHTML += `<p>London Temperature: ${weatherData.data.temperature}°C</p>`;
+                }
+                
+            } catch (error) {
+                results.innerHTML += `<p>❌ Error: ${error.message}</p>`;
+            }
+        }
+        
+        // Run tests when page loads
+        testAPIs();
+    </script>
+</body>
+</html>

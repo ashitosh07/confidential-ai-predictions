@@ -1,6 +1,24 @@
 const { ethers } = require('ethers');
 const crypto = require('crypto');
 
+// FHE implementation with simulation fallback
+// Note: fhevmjs requires specific Node.js environment setup
+let createFhevmInstance = null;
+let fhevmAvailable = false;
+
+try {
+  // Attempt to load fhevmjs in Node.js environment
+  if (typeof window === 'undefined') {
+    ({ createFhevmInstance } = require('fhevmjs'));
+    fhevmAvailable = true;
+    console.log('✅ fhevmjs loaded successfully');
+  }
+} catch (error) {
+  console.warn('⚠️  fhevmjs not available, using FHE simulation mode');
+  console.warn('   This is normal for demo environments');
+  fhevmAvailable = false;
+}
+
 class FHEClient {
   constructor() {
     this.rpcUrl = process.env.FHEVM_RPC_URL;
@@ -13,6 +31,7 @@ class FHEClient {
     this.provider = null;
     this.fhevmInstance = null;
     this.initialized = false;
+    this.isSimulation = true; // Track if using simulation
   }
 
   /**
@@ -33,24 +52,26 @@ class FHEClient {
         network = { chainId: BigInt(this.chainId) };
       }
       
-      // Initialize FHE simulation for demo
-      // In production, this would use real fhevmjs SDK
-      this.fhevmInstance = {
-        encrypt32: (value) => {
-          const hash = crypto.createHash('sha256').update(value.toString()).digest('hex');
-          return {
-            data: `0x${hash}`,
-            handles: `0x${hash.slice(0, 32)}`
-          };
-        },
-        decrypt: (ciphertext, userAddress) => {
-          // Simulate decryption - in production this would be real
-          const hash = typeof ciphertext === 'string' ? ciphertext : ciphertext.handles || ciphertext;
-          return parseInt(hash.slice(2, 10), 16) % 1000;
-        },
-        add: (a, b) => ({ handles: `0x${(parseInt(a.slice(2, 10), 16) + parseInt(b.slice(2, 10), 16)).toString(16).padStart(8, '0')}` }),
-        mul: (a, b) => ({ handles: `0x${(parseInt(a.slice(2, 10), 16) * parseInt(b.slice(2, 10), 16)).toString(16).padStart(8, '0')}` })
-      };
+      // Initialize FHE instance (real or simulation)
+      if (fhevmAvailable && createFhevmInstance) {
+        try {
+          // Attempt real FHEVM initialization
+          this.fhevmInstance = await createFhevmInstance({
+            chainId: this.chainId,
+            publicKeyId: '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef'
+          });
+          console.log('✅ Real FHEVM instance initialized');
+          this.isSimulation = false;
+        } catch (error) {
+          console.warn('⚠️  FHEVM initialization failed, using simulation:', error.message);
+          this.fhevmInstance = this._createSimulationInstance();
+          this.isSimulation = true;
+        }
+      } else {
+        console.warn('⚠️  Using FHE simulation mode (demo-ready)');
+        this.fhevmInstance = this._createSimulationInstance();
+        this.isSimulation = true;
+      }
       
       // Validate zero-gas environment
       await this._validateZeroGas();
@@ -77,7 +98,14 @@ class FHEClient {
    * Get FHE public key from network
    */
   async _getPublicKey() {
-    // For demo, return a mock public key
+    try {
+      if (this.fhevmInstance && this.fhevmInstance.getPublicKey) {
+        return await this.fhevmInstance.getPublicKey();
+      }
+    } catch (error) {
+      console.warn('Failed to get real public key:', error.message);
+    }
+    // Fallback to mock public key for demo
     return '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef';
   }
 
@@ -237,11 +265,32 @@ class FHEClient {
     return weights[domain] || [33, 33, 34];
   }
 
+  _createSimulationInstance() {
+    return {
+      encrypt32: (value) => {
+        const hash = crypto.createHash('sha256').update(value.toString()).digest('hex');
+        return {
+          data: `0x${hash}`,
+          handles: `0x${hash.slice(0, 32)}`
+        };
+      },
+      decrypt: (ciphertext, userAddress) => {
+        // Simulate decryption - deterministic based on input
+        const hash = typeof ciphertext === 'string' ? ciphertext : ciphertext.handles || ciphertext;
+        return parseInt(hash.slice(2, 10), 16) % 1000;
+      },
+      add: (a, b) => ({ handles: `0x${(parseInt(a.slice(2, 10), 16) + parseInt(b.slice(2, 10), 16)).toString(16).padStart(8, '0')}` }),
+      mul: (a, b) => ({ handles: `0x${(parseInt(a.slice(2, 10), 16) * parseInt(b.slice(2, 10), 16)).toString(16).padStart(8, '0')}` })
+    };
+  }
+
   _computeConfidence(encryptedInputs) {
     // Simple confidence based on input count
     const baseConfidence = 85;
     const penalty = Math.max(0, 3 - encryptedInputs.length) * 10;
-    return this.fhevmInstance.encrypt32(baseConfidence - penalty);
+    return this.fhevmInstance.encrypt32 ? 
+      this.fhevmInstance.encrypt32(baseConfidence - penalty) :
+      { handles: `0x${(baseConfidence - penalty).toString(16).padStart(8, '0')}` };
   }
 
   /**

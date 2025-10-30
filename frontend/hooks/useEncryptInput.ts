@@ -23,33 +23,29 @@ export function useEncryptInput() {
     setError(null);
     
     try {
-      // Simulate FHE encryption for demo purposes
-      // In production, this would use real fhevmjs SDK
-      const encrypted = await Promise.all(
-        inputs.map(async (input, index) => {
-          // Simulate encryption delay
-          await new Promise(resolve => setTimeout(resolve, 100));
-          
-          // Generate deterministic "encrypted" data for demo
-          const inputBytes = new TextEncoder().encode(input.toString());
-          const hash = await crypto.subtle.digest('SHA-256', inputBytes);
-          const hashArray = new Uint8Array(hash);
-          
-          return {
-            data: `0x${Array.from(hashArray.slice(0, 32)).map(b => b.toString(16).padStart(2, '0')).join('')}`,
-            handles: `0x${Array.from(hashArray.slice(0, 16)).map(b => b.toString(16).padStart(2, '0')).join('')}`
-          };
-        })
-      );
+      // Call backend encryption API for FHE operations
+      const response = await fetch('http://localhost:3001/api/encrypt-data', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ data: inputs })
+      });
       
-      const result = {
-        encrypted,
-        proof: generateProof(encrypted),
-        timestamp: Date.now()
+      const result = await response.json();
+      
+      if (!result.success) {
+        throw result;
+      }
+      
+      const encryptedData = {
+        encrypted: result.encrypted.encrypted,
+        proof: generateProof(result.encrypted.encrypted),
+        timestamp: result.encrypted.timestamp
       };
       
-      setEncryptedData(result);
-      return result;
+      setEncryptedData(encryptedData);
+      return encryptedData;
       
     } catch (err: any) {
       const apiError: ApiError = err.success === false ? err : {

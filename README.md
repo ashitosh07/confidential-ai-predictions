@@ -1,10 +1,3 @@
-Perfect — below are **three ready-to-use variants**, each optimized for a different audience and use case.
-You can keep all three in your repo (or pick one).
-
----
-
-# 1️⃣ One-Page Public README (Concise, Shareable)
-
 ## 🧠 Z-AI Predictor
 
 **Confidential AI powered by Zama FHEVM**

@@ -2,21 +2,6 @@
 
 **Next-generation privacy-preserving AI predictions using Zama FHEVM**
 
-Built for the **Zama Developer Program October 2025 - Golden Ticket Submission**
-
-## ⚠️ **CRITICAL: Real APIs Only - No Fallbacks**
-
-This application **ENFORCES REAL API USAGE** and will **FAIL LOUDLY** if any external service is unreachable:
-
-- ❌ **NO mock data or fallbacks**
-- ❌ **NO "if API fails, use sample data"**
-- ✅ **REAL Google Gemini API calls only**
-- ✅ **REAL CoinGecko API calls only**
-- ✅ **REAL WeatherAPI calls only**
-- ✅ **Zero-gas FHEVM RPC required**
-
-**If any service fails, you will see explicit JSON error messages.**
-
 ## 🚀 **Quick Start**
 
 ### **1. Quick Setup**

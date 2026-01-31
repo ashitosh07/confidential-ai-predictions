@@ -1,4 +1,4 @@
-# 🧠 Z-AI Predictor - Production Confidential AI/ML Predictions
+# 🧠 Z-AI Predictor - Confidential AI/ML Predictions
 
 **Next-generation privacy-preserving AI predictions using Zama FHEVM**
 
